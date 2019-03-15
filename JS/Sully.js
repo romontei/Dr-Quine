@@ -2,38 +2,37 @@ let i = 5;
 const fs = require('fs');
 const exec = require('child_process').exec;
 
-const BUILD = (fileName) => {
-	exec(`node ${fileName}`, err => err ? console.log(err.message) : true);
+const BUILD = (path) => {
+	// Execute the specified file
+	exec(`node ${path}`, err => err ? console.log(err.message) : true);
 }
 
 const WRITE = (path, cpt) => {
-	let tmp = i;
-	tmp--;
-
+	// Stores what we want to write
 	const obj = {
-		depBas: `let i = ${cpt};\nconst fs = require('fs');\nconst exec = require('child_process').exec;\n\n`,
-		depDec: `let i = ${tmp};\nconst fs = require('fs');\nconst exec = require('child_process').exec;\n\n`,
+		dep: `let i = ${cpt};\nconst fs = require('fs');\nconst exec = require('child_process').exec;\n\n`,
 		bld: `const BUILD = ${BUILD.toString()}\n\n`,
 		wrt: `const WRITE = ${WRITE.toString()}\n\n`,
 		qui: `const quine = ${quine.toString()}\n\n`,
 		com: `// Call the define that lets the magic begin\nquine();\n`
 	};
-
-	const bas = `${obj.depBas}${obj.bld}${obj.wrt}${obj.qui}${obj.com}`;
-	const dec = `${obj.depDec}${obj.bld}${obj.wrt}${obj.qui}${obj.com}`;
-	//	fs.writeFile(path, res, err => err ? console.log(err.message) : true);
-
-	//const file = await fs.readFile(path, 'utf8');
-	//await fs.writeFile(path, res);
-
-	fs.writeFile(path, dec, err => err ? console.log(err.message) : true);
-	exec(`node ${path}`, err => err ? console.log(err.message) : true);
-	fs.writeFile(path, bas, err => err ? console.log(err.message) : true);
+	
+	// Format the write content and write it
+	const res = `${obj.dep}${obj.bld}${obj.wrt}${obj.qui}${obj.com}`;
+	fs.writeFile(path, res, err => err ? console.log(err.message) : true);
 }
 
 const quine = _ => {
+	// Check if its beginning - need to by synchronous 
+	try {
+		fs.openSync(`Sully_${i}.js`, 'r');
+		i--;
+	} catch (_) {}
+	
+	// Stop the process when the variable is set to 0
 	if (i >= 0) {
 		WRITE(`Sully_${i}.js`, i);
+		BUILD(`Sully_${i}.js`);
 	}
 }
 
